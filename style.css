@@ -1,0 +1,64 @@
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+* {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    box-sizing: border-box;
+}
+
+.loading-view {
+    position: fixed;
+    background-color: #000000;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+.loading-text {
+    text-align: center;
+}
+.loading-title {
+    font-size: 3em;
+    margin-bottom: 10px;
+}
+.main-container {
+    position: fixed;
+    display: none;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    background-color: #000000;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.counters {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    color: #ffffff;
+    font-size: 2em;
+}
+
+#video {
+    width: 100%;
+}
+.copy {
+    z-index: 1000;
+    color: #ffffff;
+    position: fixed;
+    left: 10px;
+    bottom: 10px;
+}
+a {
+    color: #ffffff;
+}
