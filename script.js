@@ -11,6 +11,7 @@
     const video = document.getElementById("video");
     let turnIntervals = [];
     let boopTimeout = null;
+    let isFirstPlay = true;
 
     const startLoading = async () => {
         document.querySelectorAll(".turns-counter").forEach(v =>
@@ -50,10 +51,9 @@
             
             video.src = videoUrl;
             video.loop = true;
+            video.playsInline = true; // Важно для iOS
             
-            // Set up event listeners before playing
             setupVideoListeners();
-            
             stopLoading();
         } catch (error) {
             console.error('Error downloading video:', error);
@@ -73,11 +73,39 @@
     };
 
     const setupVideoListeners = () => {
-        // This will trigger on initial play AND when video loops and continues playing
-        video.addEventListener("playing", () => {
-            console.log('Video playing event - starting cycles');
-            startTurnCycle();
-            startBoopCycle();
+        // Первый запуск при play
+        video.addEventListener("play", () => {
+            if (isFirstPlay) {
+                console.log('Initial play - starting cycles');
+                startTurnCycle();
+                startBoopCycle();
+                isFirstPlay = false;
+            }
+        });
+
+        // Обнаружение loop через seeked на iOS
+        video.addEventListener("seeked", () => {
+            // На iOS при loop происходит seek к началу
+            if (video.currentTime < 1 && !video.paused) {
+                console.log('Video looped (seeked) - restarting cycles');
+                startTurnCycle();
+                startBoopCycle();
+            }
+        });
+
+        // Дополнительная проверка через timeupdate для других браузеров
+        let lastTime = 0;
+        video.addEventListener("timeupdate", () => {
+            const currentTime = video.currentTime;
+            
+            // Обнаружение loop (время вернулось назад)
+            if (currentTime < lastTime && currentTime < 2) {
+                console.log('Video looped (timeupdate) - restarting cycles');
+                startTurnCycle();
+                startBoopCycle();
+            }
+            
+            lastTime = currentTime;
         });
     };
 
@@ -87,12 +115,10 @@
     };
 
     const startBoopCycle = () => {
-        // Clear any existing boop timeout
         if (boopTimeout) {
             clearTimeout(boopTimeout);
         }
         
-        // Schedule boop at 42.290 seconds
         boopTimeout = setTimeout(() => {
             addBoop();
             console.log('Boop triggered at 42.290s');
