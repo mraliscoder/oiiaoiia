@@ -10,7 +10,7 @@
 
     const video = document.getElementById("video");
     let turnIntervals = [];
-    let boopInterval = null;
+    let boopTimeout = null;
 
     const startLoading = async () => {
         document.querySelectorAll(".turns-counter").forEach(v =>
@@ -50,6 +50,10 @@
             
             video.src = videoUrl;
             video.loop = true;
+            
+            // Set up event listeners before playing
+            setupVideoListeners();
+            
             stopLoading();
         } catch (error) {
             console.error('Error downloading video:', error);
@@ -65,24 +69,34 @@
             document.querySelector(".main-container").style.display = "flex";
             document.querySelector(".loading-view").style.display = "none";
             video.play();
-            
-            startTurnCycle();
-            setTimeout(() => {
-                addBoop();
-                video.addEventListener('durationchange', () => {
-                    if (video.duration) {
-                        boopInterval = setInterval(() => {
-                            addBoop();
-                        }, video.duration * 1000);
-                    }
-                }, { once: true });
-            }, 42290);
         };
+    };
+
+    const setupVideoListeners = () => {
+        // This will trigger on initial play AND when video loops and continues playing
+        video.addEventListener("playing", () => {
+            console.log('Video playing event - starting cycles');
+            startTurnCycle();
+            startBoopCycle();
+        });
     };
 
     const clearAllTurnIntervals = () => {
         turnIntervals.forEach(interval => clearInterval(interval));
         turnIntervals = [];
+    };
+
+    const startBoopCycle = () => {
+        // Clear any existing boop timeout
+        if (boopTimeout) {
+            clearTimeout(boopTimeout);
+        }
+        
+        // Schedule boop at 42.290 seconds
+        boopTimeout = setTimeout(() => {
+            addBoop();
+            console.log('Boop triggered at 42.290s');
+        }, 42290);
     };
 
     const startTurnCycle = () => {
@@ -125,19 +139,6 @@
             turnIntervals.push(phase5);
             setTimeout(() => clearInterval(phase5), 2980);
         }, 37030);
-        
-        if (!video.hasLoopListener) {
-            let lastTime = 0;
-            video.addEventListener("timeupdate", () => {
-                const currentTime = video.currentTime;
-                if (currentTime < lastTime && currentTime < 5) {
-                    startTurnCycle();
-                }
-                
-                lastTime = currentTime;
-            });
-            video.hasLoopListener = true;
-        }
     };
 
     const addTurn = () => {
